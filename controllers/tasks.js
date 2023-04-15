@@ -1,43 +1,70 @@
-const tasks = require('../models/tasks')
+const Tasks = require('../models/tasks')
 
 const getAllTasks = async(req,res) => {
   try {
-    const allTasks = await tasks.find({})
-    res.status(200).json(allTasks)
+    const allTasks = await Tasks.find({})
+    return res.status(200).json(allTasks)
   } catch (error) {
-    res.status(500).json({ message : error.message }) 
+    return res.status(500).json({ message : error.message }) 
   }
 }
 
-const createTask = (req,res) => {
+const createTask = async(req,res) => {
   try {
-    res.send("Added task")
+    const task = new Tasks({taskName : req.body.taskName })
+    const newTask = await task.save()
+    return res.status(201).send(newTask)
   } catch (error) {
-    res.send('Error occured')   
+    return res.status(500).json({message : error.message})
   }
 } 
 
-const getTask = (req,res) => {
+const getTask = async(req,res) => {
   try {
-    res.send('Here is the required task')
+    const task = await Tasks.findById(req.params.id)
+    if(task === [])
+    {
+      return res.status(404).json({ message:"item not found" })
+    }
+    return res.status(200).json(task)
   } catch (error) {
-    res.send('Error occured')    
+    return res.status(500).json({ message:error.message })
   }
 }
 
-const editTask = (req,res) => {
+const editTask = async(req,res) => {
   try {
-    res.send('Updated the task')
+    const task = await Tasks.findById(req.params.id)
+    if(req.body.taskName)
+    {
+      task.taskName = req.body.taskName
+    }
+    if (req.body.completed) {
+      task.completed = req.body.completed
+    }
+    if(!task)
+    {
+      return res.status(404).json({ message:"Item not found" })
+    }
+    const newTask = await task.save()
+    return res.status(200).json(newTask)
   } catch (error) {
-    res.send('Error occured')    
+    return res.status(500).send({ message : error.message })    
   }
 }
 
-const deleteTask = (req,res) => {
+const deleteTask = async(req,res) => {
   try {
-    res.send('Deleted the task')
+    const task = await Tasks.findById(req.params.id)
+
+    if(!task)
+    {
+      return res.status(404).json({ message:"item not found"})
+    }
+    await task.deleteOne()
+    return res.status(200).json(task)
   } catch (error) {
-    res.send('Error occured')    
+    return res.status(500).send({ message:error.message })    
   }
 }
 

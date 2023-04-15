@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()
 const tasks = require('./routes/tasks')
 const connectDB = require('./db/connect')
+const { default: mongoose } = require('mongoose')
 
 require('dotenv').config()
 
@@ -27,5 +28,16 @@ const serverStart = async () => {
     console.log(error.message)
   }
 }
+
+process.on('SIGINT',() => {
+  mongoose.connection.close()
+    .then(() => {
+      console.log('Previous mongoose connection closed')
+      process.exit(0)
+    })
+    .catch((error) => {
+      console.log(error.message)
+    })
+})
 
 serverStart()
