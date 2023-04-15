@@ -6,6 +6,8 @@ const connectDB = require('./db/connect')
 const { default: mongoose } = require('mongoose')
 
 require('dotenv').config()
+const notFound = require('./middlewares/not-found')
+const handleError = require('./middlewares/error-handler')
 
 //middleware
 
@@ -15,6 +17,8 @@ app.use(express.json())
 
 app.use('/api/v1/tasks',tasks)
 
+app.use(notFound)
+app.use(handleError)
 
 const port = process.env.PORT || 3000
 
